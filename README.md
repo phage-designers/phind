@@ -11,43 +11,23 @@ genomics, and experimental testing.
 A single bacterial genome may preserve only part of a phage. Related prophages
 across a population preserve overlapping sequence blocks and different genome
 arrangements. PHIND models that shared structure, then constructs candidate paths
-weighted by block frequency and adjacency evidence. The graph acts as a discrete model of genome
-structure: homologous blocks form a vocabulary, and their observed order and
-frequency inform candidate genomes.
+weighted by block frequency and adjacency evidence. The graph acts as a discrete
+model of genome structure: homologous blocks form a vocabulary, and their observed
+order and frequency inform candidate genomes.
 
-**Current release — Mycobacteriaceae (NTM v3.1):** **893 reconstructed fragments
-plus 411 observed singletons** (1,304 sequences, median 14.3 kb) reconstructed
-from 36,857 prophages across 34,163 genomes, with 893 ancestral-state
-alternatives. Every sequence ships with a path/provenance audit rather than a
-completeness headline: 408 reconstruct a single member genome's block order and
-485 mix genome contexts.
-[Sequences and trust manifest](export/phage_ntm_v31/) ·
-[Method comparison and path audit](ntm/v3.1/REPORT.md)
+**Current release — Mycobacteriaceae (NTM v3.1, 2026-10-07):** 1,304 candidate
+fragments (median 14.3 kb) derived from 36,857 prophages across 34,163 genomes,
+with 893 ancestral-state alternatives. Every sequence ships with a
+path/provenance audit rather than a completeness headline. Details, the path
+audit, and a fragment-triage recipe:
+[sequences and trust manifest](export/phage_ntm_v31/) ·
+[method comparison and path audit](ntm/v3.1/REPORT.md)
 
-**Earlier — *E. coli*:** **479 reconstructed candidates plus 106 observed
-singletons**, with external sequence support for selected reconstructed junctions
-(summarised below).
+**Earlier — *E. coli* (2026-08-06):** 479 reconstructed candidates plus 106
+observed singletons, with external sequence support for selected reconstructed
+junctions (below).
 
-## How it works
-
-1. **Find related prophages.** Extract prophage sequences from bacterial
-   assemblies and group them into sequence-similar clades using MASH.
-2. **Model shared sequence and structure.** Align within clades with
-   `allwave`, segment the alignments, and use `impg` to identify homologous
-   blocks. Block occurrence and adjacency define the reconstruction graph.
-3. **Reconstruct candidate sequences.** Sample paths through the graph and
-   infer a sequence within each block. The typical-genome mode, called **ML**
-   in the releases, uses majority-rule block consensus; the **ancestral**
-   mode uses per-block neighbor-joining trees and Fitch parsimony.
-4. **Check and prioritize.** Retain source provenance, annotate phage-related
-   genes, estimate completeness and contamination, inspect path structure,
-   and test selected modules and junctions against external sequence data.
-
-The current NTM v3.1 method restricts paths to observed adjacencies and uses
-per-clade length targets and natural termini. The earlier *E. coli* release
-uses adjacency-weighted sampling with a length budget.
-
-## What has been done
+## Results
 
 ### *E. coli*: population-scale reconstruction and external sequence support
 
@@ -79,8 +59,21 @@ multiple accessions.
 
 ### Mycobacteriaceae / NTM v3.1: reconstruction with explicit fragment and path QC
 
+**Use v3.1; the v3 ML catalog is withdrawn.** v3's walk only *favoured* observed
+adjacencies and accumulated blocks to a length budget, and CheckV scored the
+resulting mosaics near-complete, because concatenating every common block includes
+every marker gene — completeness rose monotonically with the length-to-expected
+ratio. v3.1 restricts paths to observed adjacencies, terminates at natural termini,
+and targets marker-derived genome lengths: median length falls from ~2.7x to ~1.0x
+the expected genome length, and completeness falls with it (median 28.4%). The
+general lesson: annotation coverage and sequence plausibility do not establish a
+reconstructed genome — **the order of genomic blocks is independently informative
+and must be modelled and reported as such.**
+
 - **Input:** 36,857 prophages from a union cohort of 34,163 Mycobacteriaceae
-  genomes: 26,890 NTM and 7,273 *M. tuberculosis* complex genomes.
+  genomes: 26,890 NTM and 7,273 *M. tuberculosis* complex genomes. Prophage
+  content is highly uneven — 76% of prophages come from *Mycobacteroides*,
+  predominantly *M. abscessus*.
 - **Current release:** 1,304 sequences comprising 893 reconstructed fragments
   and 411 observed singletons, plus 893 ancestral-state alternatives.
   Median released-sequence length is 14.3 kb.
@@ -93,41 +86,46 @@ multiple accessions.
   relative (MASH distance > 0.30) among 6,060 curated actinobacteriophages.
   The reference is biased toward fast-growing-host isolates; protein-level
   comparison is still needed before claiming biological novelty.
+- **Choosing fragments for downstream use:** `release_manifest.tsv` carries
+  per-sequence `chimerism_verdict`, `length_ratio_vs_target` and
+  `checkv_completeness`, and the export README gives explicit filters.
+  [Trust manifest and triage](export/phage_ntm_v31/)
+- **Remaining work:** 697 of 1,304 clades use a fragment-length fallback target
+  about 22% below the marker-based expected length; re-targeting those clades in
+  a second pass is the clearest route to higher completeness.
 
-[Current sequences and trust manifest](export/phage_ntm_v31/) ·
 [Method comparison and path audit](ntm/v3.1/REPORT.md) ·
-[Reference-comparison controls and caveats](ntm/v3.1/NOVELTY.md)
+[Reference-comparison controls and caveats](ntm/v3.1/NOVELTY.md) ·
+[Method index and open items](ntm/v3.1/README.md)
 
-**Use v3.1 for current NTM results.** It supersedes v3 after a mosaic
-reconstruction defect was identified: combining many blocks inflated both
-sequence length and CheckV completeness. The correction demonstrates why annotation and completeness must
-be assessed alongside genome structure. Remaining work on this dataset: 697 of
-1,304 clades use a fragment-length fallback target that under-estimates genome
-length, which is the clearest route to recovering additional completeness.
+## How it works
 
-## What the evidence establishes
+1. **Find related prophages.** Extract prophage sequences from bacterial
+   assemblies and group them into sequence-similar clades using MASH.
+2. **Model shared sequence and structure.** Align within clades with
+   `allwave`, segment the alignments, and use `impg` to identify homologous
+   blocks. Block occurrence and adjacency define the reconstruction graph.
+3. **Reconstruct candidate sequences.** Sample paths through the graph and
+   infer a sequence within each block. The typical-genome mode, called **ML**
+   in the releases, uses majority-rule block consensus; the **ancestral**
+   mode uses per-block neighbor-joining trees and Fitch parsimony.
+4. **Check and prioritize.** Retain source provenance, annotate phage-related
+   genes, estimate completeness and contamination, inspect path structure,
+   and test selected modules and junctions against external sequence data.
 
-**Methodological result.** The NTM v3.1 correction identified a failure mode of
-graph-based reconstruction. A block walk that only *favours* observed adjacencies
-keeps assembling blocks until a length cap, producing chimeras that standard
-completeness metrics score as near-complete: completeness rose monotonically with
-the length-to-expected ratio, approaching 100% for the most chimeric
-reconstructions. Restricting paths to observed adjacencies, terminating at natural
-termini, and targeting marker-derived genome lengths removed the defect — length
-fell from roughly 2.7x to roughly 1.0x expected, and completeness dropped to its
-honest value. Sequence plausibility and annotation completeness are therefore not
-sufficient on their own: **the order of genomic components is independently
-informative and must be modelled and reported as such.**
+The current NTM v3.1 method restricts paths to observed adjacencies and uses
+per-clade length targets and natural termini. The earlier *E. coli* release
+uses adjacency-weighted sampling with a length budget.
 
-PHIND has produced reproducible, population-derived candidate sequences with
-phage-consistent annotations and, for a selected *E. coli* panel, external
-support for reconstructed sequence junctions. It provides a way to prioritize
-phage lineages and sequence hypotheses from existing sequencing collections.
+## Scope and limitations
 
-Whole-genome reconstruction accuracy, infectivity, host range, safety, and
-clinical efficacy remain unvalidated by these results. Annotation, reference
-similarity, and assembly matches are computational evidence; experimental
-recovery and functional testing are still required.
+PHIND produces reproducible, population-derived candidate sequences with
+per-sequence provenance and phage-consistent annotations, plus external
+confirmation of reconstructed junctions for a selected *E. coli* panel. It does
+not establish whole-genome reconstruction accuracy, infectivity, host range,
+safety, or clinical efficacy: annotation, reference similarity, and assembly
+matches are computational evidence; experimental recovery and functional testing
+remain required.
 
 ## Code, data, and reproducibility
 
