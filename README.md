@@ -15,10 +15,18 @@ weighted by block frequency and adjacency evidence. The graph acts as a discrete
 structure: homologous blocks form a vocabulary, and their observed order and
 frequency inform candidate genomes.
 
-**The pipeline has been applied to two datasets:** an *E. coli* collection
-yielding **479 reconstructed candidates plus 106 observed singletons**, and a
-Mycobacteriaceae collection yielding **893 reconstructed fragments plus 411
-observed singletons** in the current NTM v3.1 release.
+**Current release — Mycobacteriaceae (NTM v3.1):** **893 reconstructed fragments
+plus 411 observed singletons** (1,304 sequences, median 14.3 kb) reconstructed
+from 36,857 prophages across 34,163 genomes, with 893 ancestral-state
+alternatives. Every sequence ships with a path/provenance audit rather than a
+completeness headline: 408 reconstruct a single member genome's block order and
+485 mix genome contexts.
+[Sequences and trust manifest](export/phage_ntm_v31/) ·
+[Method comparison and path audit](ntm/v3.1/REPORT.md)
+
+**Earlier — *E. coli*:** **479 reconstructed candidates plus 106 observed
+singletons**, with external sequence support for selected reconstructed junctions
+(summarised below).
 
 ## How it works
 
@@ -93,9 +101,23 @@ multiple accessions.
 **Use v3.1 for current NTM results.** It supersedes v3 after a mosaic
 reconstruction defect was identified: combining many blocks inflated both
 sequence length and CheckV completeness. The correction demonstrates why annotation and completeness must
-be assessed alongside genome structure.
+be assessed alongside genome structure. Remaining work on this dataset: 697 of
+1,304 clades use a fragment-length fallback target that under-estimates genome
+length, which is the clearest route to recovering additional completeness.
 
 ## What the evidence establishes
+
+**Methodological result.** The NTM v3.1 correction identified a failure mode of
+graph-based reconstruction. A block walk that only *favours* observed adjacencies
+keeps assembling blocks until a length cap, producing chimeras that standard
+completeness metrics score as near-complete: completeness rose monotonically with
+the length-to-expected ratio, approaching 100% for the most chimeric
+reconstructions. Restricting paths to observed adjacencies, terminating at natural
+termini, and targeting marker-derived genome lengths removed the defect — length
+fell from roughly 2.7x to roughly 1.0x expected, and completeness dropped to its
+honest value. Sequence plausibility and annotation completeness are therefore not
+sufficient on their own: **the order of genomic components is independently
+informative and must be modelled and reported as such.**
 
 PHIND has produced reproducible, population-derived candidate sequences with
 phage-consistent annotations and, for a selected *E. coli* panel, external
