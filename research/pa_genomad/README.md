@@ -107,6 +107,24 @@ python3 research/pa_genomad/acquire_pa_genomes.py --jobs 48
 - source chain: ENA fasta API → NCBI datasets ZIP.
 - ~2 MB per genome bgzipped; ~94 GB for the full public set.
 
+### Acquisition result (2026-11-06)
+
+| | |
+|---|---|
+| public accessions attempted | 46,900 |
+| **acquired** | **46,899 (99.998%)** |
+| unobtainable | **1** — `GCF_030224345.1` |
+| output | 83 GB on disk, **316.7 Gbp**, `acquisition_manifest.tsv` |
+
+`GCF_030224345.1` (7.0 Mb, Contig, Loyola University Chicago, "Genomic Catalog of
+Human Bladder Bacteria") is **`assemblyStatus: suppressed` at NCBI**. Suppressed
+assemblies serve no sequence: the datasets ZIP contains only metadata, and its
+paired GenBank twin `GCA_030224345.1` is likewise unavailable. If a replacement
+assembly appears for BioSample SAMN34998785, add it and re-run (resume-first).
+
+Coordinate interface verified at scale: **1,412/1,412 geNomad `seq_name`s resolved**
+in the `.fai` bare names across a random 300-genome sample (100%).
+
 ## Usage
 
 ```sh

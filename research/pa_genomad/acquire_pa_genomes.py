@@ -109,12 +109,20 @@ def main() -> int:
                 print(f"  {done}/{len(accs)}  ok={ok} reused={reused} failed={failed}  "
                       f"({rate:.1f}/s, eta {int((len(accs)-done)/max(rate,1e-9))}s)", flush=True)
 
+    merged = {}
+    if os.path.exists(manifest):
+        with open(manifest) as fh:
+            for r in csv.DictReader(fh, delimiter="\t"):
+                if r.get("accession"):
+                    merged[r["accession"]] = r
+    for r in results:
+        merged[r["accession"]] = r
+    fields = ["accession", "status", "source", "contigs", "total_bp", "error"]
     with open(manifest, "w", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=["accession", "status", "source", "contigs", "total_bp", "error"],
-                           delimiter="\t")
+        w = csv.DictWriter(fh, fieldnames=fields, delimiter="\t", extrasaction="ignore")
         w.writeheader()
-        for r in sorted(results, key=lambda r: r["accession"]):
-            w.writerow(r)
+        for acc in sorted(merged):
+            w.writerow(merged[acc])
     print(f"ACQUISITION_DONE ok={ok} reused={reused} failed={failed} total={len(results)} -> {manifest}", flush=True)
     return 0 if failed == 0 else 1
 
